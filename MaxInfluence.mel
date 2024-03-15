@@ -1,0 +1,42 @@
+{ 
+    /*SCRIPT PARAMETER*/
+    int $MaxInfluence = 4;
+    /******************/
+    
+    string $Selection[] = `ls -sl`;
+    string $Skin = `findRelatedSkinCluster $Selection[0]`;
+    
+    int $VertsCount[] = `polyEvaluate -v $Selection[0]`;
+    int $i = 0;
+    
+    for(; $i < ($VertsCount[0] + 1); $i++)    // Iterate over all mesh vertices
+    {
+        string $Vertex = ($Selection[0] + ".vtx[" + $i + "]");    // Variable to store current vertex
+        float $Weights[] = `skinPercent -ignoreBelow 0.0001 -query -value $Skin $Vertex`;    // Array of all influences not null
+        
+        if(size($Weights) > $MaxInfluence)       // If (number of influences > max number of influences)
+        {
+            float $Max[];
+            for($j = 0; $j < size($Weights); $j++) {
+                $Max[$j] = 0.0;    // Init Max array
+            }
+            
+            for($W in $Weights)    // Iterate over all positive influences
+            {
+                int $k;
+                for($j = size($Weights); $j >= 0 && $W > $Max[$j]; $j--); 
+                $j++;
+                
+                for($k = size($Weights); $k > $j; $k--) {
+                    $Max[$k] = $Max[$k - 1];
+                }
+                
+                $Max[$k] = $W;
+            }
+            
+            float $PruneValue = $Max[$MaxInfluence] + 0.0001;
+            print ($PruneValue + "\n");
+            skinPercent -pruneWeights $PruneValue $Skin $Vertex;
+        }       
+    }
+}
