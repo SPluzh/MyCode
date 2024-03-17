@@ -50,4 +50,4 @@ def limitPerJointInfluence(jnt_limit = 4, deselect = True):
 	sys.stdout.write('\n %s Verts weight refined in. ' " %s seconds " % (lenVert, (time.time() - start_time)))
 	#### End of Script ####
 
-limitPerJointInfluence(jnt_limit = 1, deselect = False)
+limitPerJointInfluence(jnt_limit = 4, deselect = True)
